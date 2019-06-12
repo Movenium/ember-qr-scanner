@@ -9,6 +9,8 @@ export default Ember.Component.extend({
 
   frameRate: 60,
 
+  mediaStream: null,
+
   init() {
     this._super(...arguments);
 
@@ -21,13 +23,17 @@ export default Ember.Component.extend({
     Ember.run.scheduleOnce('afterRender', this, '_start');
   },
 
-  willRemoveElement() {
+  willDestroyElement() {
     this._cancelRun();
+    this.get("mediaStream").getTracks().forEach(track => track.stop())
   },
 
   _start() {
     // Request camera access via getUserMedia()
     this.requestCameraAccess().then(stream => {
+
+      // Save the stream
+      this.set("mediaStream", stream);
 
       // Create <video> element
       let video = document.createElement('video');
